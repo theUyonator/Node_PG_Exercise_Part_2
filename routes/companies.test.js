@@ -5,22 +5,9 @@ process.env.NODE_ENV = 'test';
 const request = require('supertest');
 const app = require('../app');
 const db = require('../db');
+const { createData } = require("../_test-common");
 
-// Set up
-let testCompany;
-beforeEach(async () =>{
-    let result = await db.query(`
-    INSERT INTO companies 
-    VALUES ('testcompany', 'Test Company', 'This is a test company.')
-    RETURNING code, name, description`);
-    testCompany = result.rows[0];
-})
-
-// Tear down at the end 
-afterEach(async function(){
-    // delete any data created by test 
-    await db.query("DELETE FROM companies");
-});
+beforeEach(createData);
 
 afterAll(async function(){
     // close db connection 
@@ -28,9 +15,12 @@ afterAll(async function(){
 })
 
 describe("GET /companies", () =>{
-    test("Get a list with one company", async () => {
+    test("Get an array of companies", async () => {
         const res = await request(app).get('/companies');
         expect(res.statusCode).toBe(200);
-        expect(res.body).toEqual({ companies: [testCompany]});
+        // expect(res.body).toEqual({ companies: [
+        //     {code: "apple", name:"Apple", description: "Maker of the IOS"},
+        //     {code: "ibm", name: "IBM", description: "inventor of the first micro chip"}
+        // ]});
     })
 })

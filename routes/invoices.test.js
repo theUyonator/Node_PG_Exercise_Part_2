@@ -5,25 +5,10 @@ process.env.NODE_ENV = 'test';
 const request = require('supertest');
 const app = require('../app');
 const db = require('../db');
+const { createData } = require("../_test-common");
 
 // Set up
-let testInvoice;
-beforeEach(async () =>{
-    
-    let result = await db.query(`
-    INSERT INTO invoices (comp_code, amt, paid, paid_date)
-    VALUES ('testcompany', 500, false, null)
-    RETURNING id, comp_code, amt, paid, add_date, paid_date `);
-    // console.log(result);
-    testInvoice = result.rows[0];
-    console.log(testInvoice);
-})
-
-// Tear down at the end 
-afterEach(async function(){
-    // delete any data created by test 
-    await db.query("DELETE FROM invoices");
-});
+beforeEach(createData)
 
 afterAll(async function(){
     // close db connection 
@@ -32,11 +17,13 @@ afterAll(async function(){
 
 // console.log(testInvoice);
 describe("GET /invoices", () =>{
-    test("Get a list with one invoice", async () => {
+    test("Get an array with all invoices", async () => {
         const res = await request(app).get('/invoices');
-        console.log(testInvoice);
-        // console.log(res.body);
         expect(res.statusCode).toBe(200);
-        // expect(res.body).toEqual({ invoices: [testInvoice]});
+        // expect(res.body).toEqual({ invoices: [
+        //     {id: 1, comp_code: 'apple', amt: 100, paid: false, add_date: '2018-01-01', paid_date: null},
+        //     {id: 2, comp_code: 'apple', amt: 200, paid: true, add_date: '2018-02-01', paid_date: '2018-02-02'},
+        //     {id: 3, comp_code: 'ibm', amt: 300, paid: false, add_date: '2018-03-01', paid_date: null}
+        // ]});
     })
 })
