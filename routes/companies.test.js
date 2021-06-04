@@ -18,9 +18,9 @@ describe("GET /companies", () =>{
     test("Get an array of companies", async () => {
         const res = await request(app).get('/companies');
         expect(res.statusCode).toBe(200);
-        // expect(res.body).toEqual({ companies: [
-        //     {code: "apple", name:"Apple", description: "Maker of the IOS"},
-        //     {code: "ibm", name: "IBM", description: "inventor of the first micro chip"}
-        // ]});
+        expect(res.body).toEqual({ companies: [
+            {code: "apple", name:"Apple", description: "Maker of the IOS"},
+            {code: "ibm", name: "IBM", description: "inventor of the first micro chip"}
+        ]});
     })
 })

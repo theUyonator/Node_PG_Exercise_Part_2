@@ -52,18 +52,39 @@ router.post('/', async (req, res, next) => {
 router.patch('/:id', async (req, res, next) =>{
     try{
         const { id } = req.params;
-        const { amt } = req.body;
+        const { amt, paid } = req.body;
+        let paidDate = null;
+
         if(!amt || isNaN(amt)){
             throw new ExpressError(`Enter valid number as amount to update`, 400)
         }
-        const results = await db.query(
-            `UPDATE invoices SET amt=$2
-            WHERE id=$1 RETURNING id, comp_code, amt, paid, add_date, paid_date`,
-            [id, amt]
+
+        const currResult = await db.query(
+            `SELECT paid FROM invoices WHERE id = $1 `, [id]
         );
-        if(results.rows.length === 0) {
+
+        console.log(currResult);
+
+        if(currResult.rows.length === 0){
             throw new ExpressError(`Can't find invoice with id of ${id}`, 404)
+        };
+        
+        const currPaidDate = currResult.rows[0].paid_date;
+
+        if(!currPaidDate && paid){
+            paidDate = new Date();
+        } else if(!paid){
+            paidDate = null;
+        } else{
+            paidDate = currPaidDate;
         }
+        
+        const results = await db.query(
+            `UPDATE invoices SET amt=$2, paid=$3, paid_date=$4
+            WHERE id=$1 RETURNING id, comp_code, amt, paid, add_date, paid_date`,
+            [id, amt, paid, paidDate]
+        );
+      
         return res.json({ invoice: results.rows[0] })
 
     }catch(e){

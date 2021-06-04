@@ -7,7 +7,7 @@ async function createData(){
     await db.query("DELETE FROM invoices");
     // This line makes sure that the ids set for invoices remain the same 
     // as data is being entered and removed from the test db.
-    await db.query("SELECT setval('invoices_id_seq', 1, false");
+    await db.query("SELECT setval('invoices_id_seq', 1, false)");
 
     await db.query(`
     INSERT INTO companies (code, name, description)
